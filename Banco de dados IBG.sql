@@ -8,7 +8,7 @@ CREATE TABLE Paciente (
   sus VARCHAR(45) NULL,
   telefone VARCHAR(45) NULL,
   endereço TEXT NULL,
-  pa_x_mmhg FLOAT NULL,
+  pa_x_mmhg VARCHAR(20) NULL,
   fc_bpm FLOAT NULL,
   fr_ibpm FLOAT NULL,
   temperatura_c FLOAT NULL,
