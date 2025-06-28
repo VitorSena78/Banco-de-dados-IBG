@@ -7,7 +7,7 @@ CREATE TABLE Paciente (
   cpf VARCHAR(45) NULL,
   sus VARCHAR(45) NULL,
   telefone VARCHAR(45) NULL,
-  endereço TEXT NULL,
+  endereï¿½o TEXT NULL,
   pa_x_mmhg VARCHAR(20) NULL,
   fc_bpm FLOAT NULL,
   fr_ibpm FLOAT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE Especialidade (
 CREATE TABLE Paciente_has_Especialidade (
   Paciente_id INTEGER UNSIGNED NOT NULL,
   Especialidade_id INTEGER UNSIGNED NOT NULL,
-  data_atendimento DATE NULL DEFAULT CURRENT_DATE,
+  data_atendimento DATE NULL DEFAULT (CURRENT_DATE),
   PRIMARY KEY(Paciente_id, Especialidade_id),
   INDEX Paciente_has_Especialidade_FKIndex1(Paciente_id),
   INDEX Paciente_has_Especialidade_FKIndex2(Especialidade_id),
