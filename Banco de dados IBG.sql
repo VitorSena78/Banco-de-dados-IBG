@@ -21,24 +21,24 @@ CREATE TABLE Paciente (
 );
 
 CREATE TABLE Especialidade (
-  idEspecialidade INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NOT NULL,
-  PRIMARY KEY(idEspecialidade)
+  PRIMARY KEY(id)
 );
 
 CREATE TABLE Paciente_has_Especialidade (
   Paciente_id INTEGER UNSIGNED NOT NULL,
-  Especialidade_idEspecialidade INTEGER UNSIGNED NOT NULL,
-  data_atendimento DATE NULL,
-  PRIMARY KEY(Paciente_id, Especialidade_idEspecialidade),
+  Especialidade_id INTEGER UNSIGNED NOT NULL,
+  data_atendimento DATE NULL DEFAULT CURRENT_DATE,
+  PRIMARY KEY(Paciente_id, Especialidade_id),
   INDEX Paciente_has_Especialidade_FKIndex1(Paciente_id),
-  INDEX Paciente_has_Especialidade_FKIndex2(Especialidade_idEspecialidade),
+  INDEX Paciente_has_Especialidade_FKIndex2(Especialidade_id),
   FOREIGN KEY(Paciente_id)
     REFERENCES Paciente(id)
       ON DELETE NO ACTION
       ON UPDATE NO ACTION,
-  FOREIGN KEY(Especialidade_idEspecialidade)
-    REFERENCES Especialidade(idEspecialidade)
+  FOREIGN KEY(Especialidade_id)
+    REFERENCES Especialidade(id)
       ON DELETE NO ACTION
       ON UPDATE NO ACTION
 );
