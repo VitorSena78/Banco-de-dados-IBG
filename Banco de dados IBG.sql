@@ -20,9 +20,8 @@ CREATE TABLE Paciente (
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
-  last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
+  last_sync TIMESTAMP NULL,
+  local_id VARCHAR(100) NULL, -- Para IDs temporários do app
   PRIMARY KEY(id)
 );
 
@@ -32,9 +31,7 @@ CREATE TABLE Especialidade (
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
-  last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
+  last_sync TIMESTAMP NULL,
   PRIMARY KEY(id)
 );
 
@@ -44,9 +41,7 @@ CREATE TABLE Paciente_has_Especialidade (
   data_atendimento DATE NULL DEFAULT (CURRENT_DATE),
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
-  last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
+  last_sync TIMESTAMP NULL,
   PRIMARY KEY(Paciente_id, Especialidade_id),
   INDEX Paciente_has_Especialidade_FKIndex1(Paciente_id),
   INDEX Paciente_has_Especialidade_FKIndex2(Especialidade_id),
