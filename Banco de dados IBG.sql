@@ -20,6 +20,7 @@ CREATE TABLE Paciente (
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
+  last_sync_at TIMESTAMP NULL,
   device_id VARCHAR(100) NULL,
   local_id VARCHAR(100) NULL,  -- Para IDs temporários do app
   PRIMARY KEY(id)
@@ -39,6 +40,7 @@ CREATE TABLE Paciente_has_Especialidade (
   data_atendimento DATE NULL DEFAULT (CURRENT_DATE),
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
+  last_sync_at TIMESTAMP NULL,
   device_id VARCHAR(255) NULL,
   PRIMARY KEY(Paciente_id, Especialidade_id),
   INDEX Paciente_has_Especialidade_FKIndex1(Paciente_id),
@@ -52,5 +54,3 @@ CREATE TABLE Paciente_has_Especialidade (
       ON DELETE NO ACTION
       ON UPDATE NO ACTION
 );
-
-
