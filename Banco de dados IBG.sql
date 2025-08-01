@@ -1,3 +1,14 @@
+CREATE TABLE Especialidade (
+  id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(45) NOT NULL,
+  fichas INT UNSIGNED DEFAULT 0, -- novas fichas do dia, controladas via trigger
+  atendimentos_restantes_hoje INT UNSIGNED DEFAULT 0, -- para impressão, controlado via Java
+  atendimentos_totais_hoje INT UNSIGNED DEFAULT 0, -- valor original do dia
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id)
+);
+
 CREATE TABLE Paciente (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   nome VARCHAR(255) NOT NULL,
@@ -21,20 +32,8 @@ CREATE TABLE Paciente (
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
   last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY(id)
-);
-
-CREATE TABLE Especialidade (
-  id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  nome VARCHAR(45) NOT NULL,
-  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
-  last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
+  device_id VARCHAR(100) NULL,
+  local_id VARCHAR(100) NULL, -- Para IDs temporários do app
   PRIMARY KEY(id)
 );
 
@@ -43,10 +42,7 @@ CREATE TABLE Paciente_has_Especialidade (
   Especialidade_id INTEGER UNSIGNED NOT NULL,
   data_atendimento DATE NULL DEFAULT (CURRENT_DATE),
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  sync_status ENUM('PENDING', 'SYNCED', 'CONFLICT') DEFAULT 'PENDING',
-  last_sync_at TIMESTAMP NULL,
-  device_id VARCHAR(255) NULL,
-  is_deleted BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(Paciente_id, Especialidade_id),
   INDEX Paciente_has_Especialidade_FKIndex1(Paciente_id),
   INDEX Paciente_has_Especialidade_FKIndex2(Especialidade_id),
@@ -59,5 +55,3 @@ CREATE TABLE Paciente_has_Especialidade (
       ON DELETE NO ACTION
       ON UPDATE NO ACTION
 );
-
-
