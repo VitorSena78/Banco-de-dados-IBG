@@ -1,6 +1,8 @@
 -- ============================================================
 -- LIMPA TODOS OS DADOS E INSERE EXEMPLOS PARA TESTE
 -- ============================================================
+-- ATENÇÃO: Pare o servidor Spring Boot antes de executar!
+-- ============================================================
 SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE auditoria;
@@ -14,16 +16,16 @@ TRUNCATE TABLE especialidades;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
--- USUÁRIOS
+-- USUÁRIOS (senha = 123456, exceto admin = admin123)
 -- ============================================================
 INSERT INTO usuarios (id, nome, email, senha, role, ativo) VALUES
-(1, 'Administrador',     'admin@clinica.com',    '$2b$10$kxuK7IawR3..cgOWFiVQ/OFSbLJSQn/73dW8ZEsSVR8TOeQ.1fYUm', 'ADMIN',        1),
-(2, 'Recepcionista',     'recepcionista@teste.com', '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'RECEPCIONISTA', 1),
-(3, 'Dr. Carlos Silva',  'carlos@clinica.com',   '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
-(4, 'Dra. Ana Oliveira', 'ana@clinica.com',      '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
-(5, 'Dr. Pedro Santos',  'pedro@clinica.com',    '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
-(6, 'Enfermeira Juliana','juliana@clinica.com',  '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'ENFERMEIRA',   1),
-(7, 'Enfermeiro Marcos', 'marcos@clinica.com',   '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'ENFERMEIRA',   1);
+(1, 'Administrador',       'admin@clinica.com',       '$2b$10$kxuK7IawR3..cgOWFiVQ/OFSbLJSQn/73dW8ZEsSVR8TOeQ.1fYUm', 'ADMIN',        1),
+(2, 'Recepcionista',       'recepcionista@teste.com', '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'RECEPCIONISTA', 1),
+(3, 'Dr. Carlos Silva',    'carlos@clinica.com',      '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
+(4, 'Dra. Ana Oliveira',   'ana@clinica.com',         '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
+(5, 'Dr. Pedro Santos',    'pedro@clinica.com',       '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'MEDICO',       1),
+(6, 'Enf. Juliana Lima',   'juliana@clinica.com',     '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'ENFERMEIRA',   1),
+(7, 'Enf. Marcos Souza',   'marcos@clinica.com',      '$2b$10$RB8p/W8EynaRDFCHjbgC5ucRCtkF1pyDOkZMIhdUJPKgY1/jdDK7K', 'ENFERMEIRA',   1);
 
 -- ============================================================
 -- ESPECIALIDADES
@@ -69,23 +71,39 @@ INSERT INTO pacientes (id, nome, data_nascimento, idade, nome_da_mae, cpf, sus, 
 -- PACIENTE-ESPECIALIDADE (vínculo cadastrado pela recepção)
 -- ============================================================
 INSERT INTO paciente_has_especialidade (paciente_id, especialidade_id, data_atendimento) VALUES
+-- João: Cardio + Clínico (médico atende ambos de uma vez)
 (1, 1, CURDATE()),
 (1, 2, CURDATE()),
+-- Maria: Ginecologia + Endocrino (médicas diferentes)
 (2, 3, CURDATE()),
+(2, 4, CURDATE()),
+-- José: Clínico
 (3, 2, CURDATE()),
+-- Lucia: Endocrino + Nutrição
 (4, 4, CURDATE()),
+(4, 9, CURDATE()),
+-- Fernando: Psicologia + Terapeuta (Dr. Pedro atende ambos)
 (5, 5, CURDATE()),
+(5, 8, CURDATE()),
+-- Aline: Cardio + Clínico
 (6, 1, CURDATE()),
+(6, 2, CURDATE()),
+-- Rafael: Gineco + Clínico
 (7, 3, CURDATE()),
+(7, 2, CURDATE()),
+-- Camila: Psicologia + Nutrição
 (8, 5, CURDATE()),
+(8, 9, CURDATE()),
+-- Thiago: Terapeuta
 (9, 8, CURDATE()),
+-- Patricia: Nutrição
 (10, 9, CURDATE());
 
 -- ============================================================
--- ATENDIMENTOS (fluxo completo)
+-- ATENDIMENTOS
 -- ============================================================
 
--- Finalizados com consulta
+-- FINALIZADOS (3) - já passaram por triagem + consulta
 INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id,
   pa_x_mmhg, fc_bpm, fr_ibpm, temperatura_c, hgt_mgld, spo2, peso, altura, imc,
   observacoes_enfermagem, enfermeira_id, triagem_realizada_em,
@@ -94,36 +112,80 @@ VALUES
 (1, 1, 'FINALIZADO', 2,
  '120x80', 72, 16, 36.5, 100, 98, 75, 175, 24.5,
  'Paciente consciente, orientado. PA normal.', 6, NOW() - INTERVAL 2 HOUR,
- 'Paciente assintomático, exame físico normal.', 'Hipertensão arterial estágio 1', 'Iniciar Enalapril 10mg/dia. Retorno em 30 dias.', 'Paciente deve monitorar PA em casa.', 3, NOW() - INTERVAL 1 HOUR),
+ 'Paciente assintomático, exame físico normal.', 'Hipertensão arterial estágio 1',
+ 'Iniciar Enalapril 10mg/dia. Retorno em 30 dias.', 'Monitorar PA em casa.',
+ 3, NOW() - INTERVAL 1 HOUR),
 
 (3, 2, 'FINALIZADO', 2,
  '130x85', 80, 18, 37.0, 110, 97, 82, 172, 27.7,
  'Paciente relata cefaleia ocasional.', 6, NOW() - INTERVAL 3 HOUR,
- 'Sinais vitais estáveis.', 'Cefaleia tensional', 'Prescrito Dipirona 500mg 6/6h se dor. Orientado a reduzir estresse.', 'Retorno se piora.', 3, NOW() - INTERVAL 2 HOUR),
+ 'Sinais vitais estáveis.', 'Cefaleia tensional',
+ 'Prescrito Dipirona 500mg 6/6h se dor. Orientado a reduzir estresse.', 'Retorno se piora.',
+ 3, NOW() - INTERVAL 2 HOUR),
 
 (6, 1, 'FINALIZADO', 2,
  '140x90', 88, 20, 36.8, 95, 96, 70, 160, 27.3,
  'PA elevada. Paciente relata tontura.', 7, NOW() - INTERVAL 4 HOUR,
- 'ECG normal. PA ainda elevada na consulta.', 'Hipertensão arterial estágio 2', 'Ajustar medicação: Losartana 50mg/dia. Solicitar exames laboratoriais.', 'Retorno em 15 dias com exames.', 3, NOW() - INTERVAL 3 HOUR);
+ 'ECG normal. PA ainda elevada na consulta.', 'Hipertensão arterial estágio 2',
+ 'Ajustar medicação: Losartana 50mg/dia. Solicitar exames.', 'Retorno em 15 dias com exames.',
+ 3, NOW() - INTERVAL 3 HOUR);
 
--- Aguardando triagem (recepcionista cadastrou, enfermeira ainda não atendeu)
+-- AGUARDANDO TRIAGEM (6) - recepção cadastrou, enfermeira ainda não atendeu
 INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id) VALUES
-(2, 3, 'AGUARDANDO_TRIAGEM', 2),
-(4, 4, 'AGUARDANDO_TRIAGEM', 2),
-(7, 3, 'AGUARDANDO_TRIAGEM', 2),
-(8, 5, 'AGUARDANDO_TRIAGEM', 2),
-(9, 8, 'AGUARDANDO_TRIAGEM', 2),
-(10, 9, 'AGUARDANDO_TRIAGEM', 2);
+(2, 3, 'AGUARDANDO_TRIAGEM', 2),   -- Maria -> Gineco
+(2, 4, 'AGUARDANDO_TRIAGEM', 2),   -- Maria -> Endócrino (2 atendimentos p/ mesma paciente)
+(4, 4, 'AGUARDANDO_TRIAGEM', 2),   -- Lucia -> Endócrino
+(7, 2, 'AGUARDANDO_TRIAGEM', 2),   -- Rafael -> Clínico
+(8, 9, 'AGUARDANDO_TRIAGEM', 2),   -- Camila -> Nutrição
+(10, 9, 'AGUARDANDO_TRIAGEM', 2);  -- Patricia -> Nutrição
 
--- Triados, aguardando consulta
+-- AGUARDANDO CONSULTA (4) - já triados, aguardando médico
 INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id,
   pa_x_mmhg, fc_bpm, fr_ibpm, temperatura_c, hgt_mgld, spo2, peso, altura, imc,
   observacoes_enfermagem, enfermeira_id, triagem_realizada_em)
 VALUES
-(5, 5, 'AGUARDANDO_CONSULTA', 2,
+(5, 5, 'AGUARDANDO_CONSULTA', 2,   -- Fernando -> Psico (Dr. Pedro)
  '118x78', 70, 16, 36.4, 90, 99, 68, 165, 25.0,
- 'Paciente orientado, relata ansiedade. Sinais vitais normais.', 6, NOW() - INTERVAL 1 HOUR),
+ 'Paciente orientado, relata ansiedade. Sinais normais.', 6, NOW() - INTERVAL 1 HOUR),
 
-(1, 2, 'AGUARDANDO_CONSULTA', 2,
+(5, 8, 'AGUARDANDO_CONSULTA', 2,   -- Fernando -> Terapeuta (Dr. Pedro tbm)
+ '118x78', 70, 16, 36.4, 90, 99, 68, 165, 25.0,
+ 'Paciente orientado, relata ansiedade. Sinais normais.', 6, NOW() - INTERVAL 1 HOUR),
+
+(1, 2, 'AGUARDANDO_CONSULTA', 2,   -- João -> Clínico (Dr. Carlos)
  '122x82', 74, 17, 36.6, 105, 98, 75, 175, 24.5,
- 'PA levemente elevada. Sem outras queixas.', 7, NOW() - INTERVAL 30 MINUTE);
+ 'PA levemente elevada. Sem queixas.', 7, NOW() - INTERVAL 30 MINUTE),
+
+(4, 9, 'AGUARDANDO_CONSULTA', 2,   -- Lucia -> Nutrição (sem triagem obrigatória)
+ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ NULL, NULL, NULL);
+
+-- CANCELADO (1)
+INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id) VALUES
+(8, 5, 'CANCELADO', 2); -- Camila -> Psico (cancelado)
+
+-- Aline -> Clinico: FINALIZADO
+INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id,
+  pa_x_mmhg, fc_bpm, fr_ibpm, temperatura_c, hgt_mgld, spo2, peso, altura, imc,
+  observacoes_enfermagem, enfermeira_id, triagem_realizada_em,
+  avaliacao_medica, diagnostico, condutas, observacoes_medicas, medico_id, consulta_realizada_em)
+VALUES
+(6, 2, 'FINALIZADO', 2,
+ '140x90', 88, 20, 36.8, 95, 96, 70, 160, 27.3,
+ 'PA elevada.', 7, NOW() - INTERVAL 3 HOUR,
+ 'Paciente hipertensa.', 'Hipertensao + Sobrepeso',
+ 'Manter Losartana. Dieta hipossodica.', 'Retorno 30 dias.',
+ 3, NOW() - INTERVAL 2 HOUR);
+
+-- Rafael -> Gineco: AGUARDANDO_CONSULTA
+INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id,
+  pa_x_mmhg, fc_bpm, fr_ibpm, temperatura_c, hgt_mgld, spo2, peso, altura, imc,
+  observacoes_enfermagem, enfermeira_id, triagem_realizada_em)
+VALUES
+(7, 3, 'AGUARDANDO_CONSULTA', 2,
+ '125x85', 76, 17, 36.7, 102, 98, 88, 178, 27.8,
+ 'Paciente orientado. Sinais normais.', 6, NOW() - INTERVAL 1 HOUR);
+
+-- Thiago -> Terapeuta: AGUARDANDO_TRIAGEM
+INSERT INTO atendimentos (paciente_id, especialidade_id, status, recepcionista_id) VALUES
+(9, 8, 'AGUARDANDO_TRIAGEM', 2);
