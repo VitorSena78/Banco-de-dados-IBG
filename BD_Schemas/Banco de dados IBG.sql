@@ -1,10 +1,3 @@
--- Schema completo para o Sistema de Gerenciamento de Clínica Médica
--- Baseado no schema original com melhorias para suporte a workflow e autenticação
-
-CREATE DATABASE IF NOT EXISTS ibg_clinica;
-USE ibg_clinica;
-
--- Tabela de Usuários (para autenticação e controle de acesso)
 CREATE TABLE usuarios (
   id              INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   nome            VARCHAR(255) NOT NULL,
@@ -18,7 +11,6 @@ CREATE TABLE usuarios (
   UNIQUE INDEX email_UNIQUE (email ASC)
 );
 
--- Tabela de associação Usuário-Especialidade (many-to-many para médicos)
 CREATE TABLE usuario_especialidade (
   usuario_id       INTEGER UNSIGNED NOT NULL,
   especialidade_id INTEGER UNSIGNED NOT NULL,
@@ -31,7 +23,6 @@ CREATE TABLE usuario_especialidade (
     ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
--- Tabela de Especialidades
 CREATE TABLE especialidades (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NOT NULL,
@@ -45,7 +36,6 @@ CREATE TABLE especialidades (
   UNIQUE INDEX nome_UNIQUE (nome ASC)
 );
 
--- Tabela de Pacientes
 CREATE TABLE pacientes (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   nome VARCHAR(255) NOT NULL,
@@ -67,7 +57,22 @@ CREATE TABLE pacientes (
   UNIQUE INDEX sus_UNIQUE (sus ASC)
 );
 
--- Tabela de Atendimentos (workflow principal)
+CREATE TABLE paciente_has_especialidade (
+  paciente_id INTEGER UNSIGNED NOT NULL,
+  especialidade_id INTEGER UNSIGNED NOT NULL,
+  data_atendimento DATE NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (paciente_id, especialidade_id),
+  INDEX idx_paciente_has_especialidade_especialidade (especialidade_id ASC),
+  CONSTRAINT fk_paciente_has_especialidade_paciente
+    FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_paciente_has_especialidade_especialidade
+    FOREIGN KEY (especialidade_id) REFERENCES especialidades(id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
 CREATE TABLE atendimentos (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   paciente_id INTEGER UNSIGNED NOT NULL,
@@ -126,7 +131,6 @@ CREATE TABLE atendimentos (
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabela de Auditoria
 CREATE TABLE auditoria (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   usuario_id INTEGER UNSIGNED NULL,
@@ -145,70 +149,3 @@ CREATE TABLE auditoria (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
--- Tabela de associação Paciente-Especialidade (many-to-many)
-CREATE TABLE paciente_has_especialidade (
-  paciente_id INTEGER UNSIGNED NOT NULL,
-  especialidade_id INTEGER UNSIGNED NOT NULL,
-  data_atendimento DATE NULL,
-  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (paciente_id, especialidade_id),
-  INDEX idx_paciente_has_especialidade_especialidade (especialidade_id ASC),
-  CONSTRAINT fk_paciente_has_especialidade_paciente
-    FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
-    ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT fk_paciente_has_especialidade_especialidade
-    FOREIGN KEY (especialidade_id) REFERENCES especialidades(id)
-    ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- Trigger para decrementar fichas ao criar atendimento
-DELIMITER //
-CREATE TRIGGER trg_decrementar_fichas
-AFTER INSERT ON atendimentos
-FOR EACH ROW
-BEGIN
-    UPDATE especialidades
-    SET fichas = GREATEST(fichas - 1, 0),
-        atendimentos_restantes_hoje = GREATEST(atendimentos_restantes_hoje - 1, 0)
-    WHERE id = NEW.especialidade_id;
-END;
-//
-
--- Trigger para incrementar fichas ao cancelar atendimento
-CREATE TRIGGER trg_incrementar_fichas
-AFTER UPDATE ON atendimentos
-FOR EACH ROW
-BEGIN
-    IF NEW.status = 'CANCELADO' AND OLD.status != 'CANCELADO' THEN
-        UPDATE especialidades
-        SET fichas = fichas + 1,
-            atendimentos_restantes_hoje = atendimentos_restantes_hoje + 1
-        WHERE id = NEW.especialidade_id;
-    END IF;
-END;
-//
-
-DELIMITER ;
-
--- Inserir usuário admin padrão (senha: admin123)
-INSERT INTO usuarios (nome, email, senha, role) VALUES 
-('Administrador', 'admin@clinica.com', '$2b$10$4LDCBPhxkylUzup4zKQD0OoVJKXle8u3jze6Kcdfdm140TXgy9aKm', 'ADMIN');
-
--- Inserir especialidades
--- Inserir usuário recepcionista padrão (senha: recepcionista123)
-INSERT INTO usuarios (nome, email, senha, role) VALUES 
-('Recepcionista', 'recepcionista@clinica.com', '$2b$10$wxbj.myfQ0YKPjDMHP4RZ.hFgcQSSiwu8P7s.o5Xa4/0rtWQEsUVm', 'RECEPCIONISTA');
-
--- Inserir especialidades
-INSERT INTO especialidades (nome, fichas, atendimentos_restantes_hoje, atendimentos_totais_hoje, triagem_obrigatoria) VALUES
-('Cardiologia', 20, 20, 20, TRUE),
-('Clínico Geral', 20, 20, 20, TRUE),
-('Ginecologia', 20, 20, 20, TRUE),
-('Endocrinologia', 20, 20, 20, TRUE),
-('Psicologia', 20, 20, 20, FALSE),
-('Enfermagem', 50, 50, 50, FALSE),
-('Dentista', 20, 20, 20, FALSE),
-('Terapeuta', 20, 20, 20, FALSE),
-('Nutricionista', 20, 20, 20, FALSE);
