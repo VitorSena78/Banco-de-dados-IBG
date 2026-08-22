@@ -18,19 +18,6 @@ CREATE TABLE usuarios (
   UNIQUE INDEX email_UNIQUE (email ASC)
 );
 
--- Tabela de associação Usuário-Especialidade (many-to-many para médicos)
-CREATE TABLE usuario_especialidade (
-  usuario_id       INTEGER UNSIGNED NOT NULL,
-  especialidade_id INTEGER UNSIGNED NOT NULL,
-  PRIMARY KEY (usuario_id, especialidade_id),
-  CONSTRAINT fk_usuario_esp_usuario
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-    ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT fk_usuario_esp_especialidade
-    FOREIGN KEY (especialidade_id) REFERENCES especialidades(id)
-    ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
 -- Tabela de Especialidades
 CREATE TABLE especialidades (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -43,6 +30,19 @@ CREATE TABLE especialidades (
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE INDEX nome_UNIQUE (nome ASC)
+);
+
+-- Tabela de associação Usuário-Especialidade (many-to-many para médicos)
+CREATE TABLE usuario_has_especialidade (
+  usuario_id       INTEGER UNSIGNED NOT NULL,
+  especialidade_id INTEGER UNSIGNED NOT NULL,
+  PRIMARY KEY (usuario_id, especialidade_id),
+  CONSTRAINT fk_usuario_esp_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT fk_usuario_esp_especialidade
+    FOREIGN KEY (especialidade_id) REFERENCES especialidades(id)
+    ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela de Pacientes

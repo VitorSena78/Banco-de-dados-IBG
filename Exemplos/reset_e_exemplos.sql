@@ -8,7 +8,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE auditoria;
 TRUNCATE TABLE atendimentos;
 TRUNCATE TABLE paciente_has_especialidade;
-TRUNCATE TABLE usuario_especialidade;
+TRUNCATE TABLE usuario_has_especialidade;
 TRUNCATE TABLE pacientes;
 TRUNCATE TABLE usuarios;
 TRUNCATE TABLE especialidades;
@@ -44,7 +44,7 @@ INSERT INTO especialidades (id, nome, fichas, atendimentos_restantes_hoje, atend
 -- ============================================================
 -- VÍNCULO MÉDICO-ESPECIALIDADE
 -- ============================================================
-INSERT INTO usuario_especialidade (usuario_id, especialidade_id) VALUES
+INSERT INTO usuario_has_especialidade (usuario_id, especialidade_id) VALUES
 (3, 1),  -- Dr. Carlos -> Cardiologia
 (3, 2),  -- Dr. Carlos -> Clínico Geral
 (4, 3),  -- Dra. Ana   -> Ginecologia

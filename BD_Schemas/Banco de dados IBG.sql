@@ -11,7 +11,7 @@ CREATE TABLE usuarios (
   UNIQUE INDEX email_UNIQUE (email ASC)
 );
 
-CREATE TABLE usuario_especialidade (
+CREATE TABLE usuario_has_especialidade (
   usuario_id       INTEGER UNSIGNED NOT NULL,
   especialidade_id INTEGER UNSIGNED NOT NULL,
   PRIMARY KEY (usuario_id, especialidade_id),
